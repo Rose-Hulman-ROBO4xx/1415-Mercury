@@ -1,0 +1,296 @@
+<!doctype html>
+
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <body>
+    <script type="text/javascript">
+    
+        // From http://codehenge.net/blog/2011/12/getting-started-with-node-js-and-socket-io-v0-7-part-2/
+      var socket;
+      var usr = 0;
+      var users = 0;
+      var auto = 0;
+      var manual = 0;
+      
+    
+      function connect() {
+        socket = io.connect(null);
+        socket.on('')
+        // Callbacks for standard socket.io server events
+        socket.on('sensors',function(data){
+            var frontL = data.frontLS;
+            var frontR = data.frontRS;
+            var left = data.leftS;
+            var right = data.rightS;
+            var rear = data.rearS;
+            var volt = data.volt;
+            var leftM = data.leftM;
+            var rightM = data.rightM;
+            sensor_update(frontL,frontR,left,right,rear,volt,leftM,rightM);
+        });
+        socket.on('connect', function(){ status_update('Connected to Server'); });
+        socket.on('disconnect', function(){ status_update('Disconnected from Server'); });
+        socket.on('reconnecting', function( nextRetry ){ status_update('Reconnecting in ' + nextRetry + ' milliseconds'); });
+        socket.on('reconnect_failed', function(){ status_update('Reconnect Failed'); });  
+
+      }
+      
+    function sensor_update(frontL,frontR,left,right,rear,battery,leftMotor,rightMotor) {
+          var batText = "Battery: " + battery + " V";
+          var leftText = "Left: " + left + " inches";
+          var rightText = "Right: " + right + " inches";
+          var frontLeftText = "Front Left: " + frontL + " inches";
+          var frontRightText = "Front Right: " + frontR + " inches";
+          var rearText = "Rear: " + rear + " inches";
+          var leftMText = "Left Speed: " + leftMotor + "";
+          var rightMText = "Right Speed: " + rightMotor + "";
+        $('#voltage').html(batText);
+        $('#frontL').html(frontLeftText);
+        $('#frontR').html(frontRightText);
+        $('#right').html(rightText);
+        $('#rear').html(rearText);
+        $('#left').html(leftText);
+        
+        $('#leftM').html(leftMText);
+        $('#rightM').html(rightMText);
+      }
+      
+
+      function status_update(status) {
+          var text = status;
+        $('#status').html(text);
+      }
+
+      function disconnect() {
+        socket.disconnect();
+      }
+
+
+    function send() {
+        socket.send(usr + ' : Hello, Server');
+      }
+    function forward() {
+          socket.emit('forward');
+      }
+    function left() {
+          socket.emit('left');
+      }
+    function right() {
+          socket.emit('right');
+      }
+    function reverse() {
+          socket.emit('reverse');
+      }
+    function pause(){
+        socket.emit('pause');
+    }
+    function stop(){
+          socket.emit('stop');
+          if(manual){
+              toggleManual();
+          }
+          if(auto){
+              toggleAuto();
+          }
+      }
+      
+    document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 37 && manual) {
+        left();
+    }
+    else if(event.keyCode == 39 && manual) {
+        right();
+    }
+    else if(event.keyCode == 38 && manual){
+        forward();
+    }
+    else if(event.keyCode == 40 && manual){
+        reverse();
+    }
+    });
+    document.addEventListener('keyup',function(event){
+        if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
+            pause();
+        }
+    });
+    function toggleManual(){
+        manual = !manual;
+        if(manual){
+            $('#toggleMan').html('Manual On');
+            $('#toggleAuto').html('Auto Off');
+            auto = 0;
+            socket.emit('startManual');
+        }
+        else{
+            $('#toggleMan').html('Manual Off');
+            socket.emit('stop');
+        }
+    }
+    function toggleAuto(){
+        auto = !auto;
+        if(auto){
+            if(manual){
+                toggleManual();
+            }
+            
+            socket.emit('startAuto');
+            $('#toggleAuto').html('Auto On');
+            //send signal to start auto
+        }
+        else{
+            socket.emit('stopAuto');
+            $('#toggleAuto').html('Auto Off');
+        }
+    }
+    
+    function updateArm(){
+        var angle = document.getElementById('angle').value;
+        socket.emit('setArmAngle',angle);
+    }
+    
+    function updateSpeed(){
+        var speed = document.getElementById('speed').value;
+        socket.emit('setSpeed', speed);
+    }
+    
+    function updateMinD(){
+        var newMinD = document.getElementById('newMinD').value;
+        socket.emit('updateMinD',newMinD);   
+    }
+    function updateMaxD(){
+        var newMaxD = document.getElementById('newMaxD').value;
+        socket.emit('updateMaxD',newMaxD);
+    }
+    function updateAddD(){
+        var newAddD = document.getElementById('newAddD').value;
+        socket.emit('updateAddD',newAddD);
+    }
+    
+    function updateMinF(){
+        var newMinF = document.getElementById('newMinF').value;
+        socket.emit('updateMinF',newAddD);
+    }
+    
+    function updateMod(){
+        var newMod = document.getElementById('newMod').value;
+        socket.emit('updateMod',newMod);
+    }
+    function updateKp(){
+        var newKp = document.getElementById('newKp').value;
+        socket.emit('updateKp',newKp);
+    }
+    function updateKd(){
+        var newKd = document.getElementById('newKd').value;
+        socket.emit('updateKd',newKd);
+    }
+    function updateKi(){
+        var newKi = document.getElementById('newKi').value;
+        socket.emit('updateKd',newKi);
+    }
+    
+    
+    function stepForward(){
+        socket.emit('stepForward');
+    }
+    function stepBackward(){
+        socket.emit('stepBackward');
+    }
+    function stepClockwise(){
+        socket.emit('stepClockwise');
+    }
+    function stepCounterwise(){
+        socket.emit('stepCounterwise');
+    }
+    
+    function rotateCW(){
+        socket.emit('rotate180cw');
+    }
+    function rotateCCW(){
+        socket.emit('rotate180ccw');
+    }
+    
+    
+    </script>
+
+    <h1>Socket.io Test</h1>
+    <div><p id="status">Waiting for input</p></div>
+    <button id="connect" onClick='connect()'>Connect</button>
+    <button id="disconnect" onClick='disconnect()'>Disconnect</button>
+    <div>
+        Speed multiplier  : <input max="2" step=".1" value ="1" type = 'number' id = 'speed'>
+        <button id="updateSpeed" onclick="updateSpeed()">Update</button>
+    </div>
+    <div>
+        MaxD  : <input step=".1" value ="15" type = 'number' id = 'newMaxD'>
+        <button id="updateSpeed" onclick="updateMaxD()">Update</button>
+    </div>
+    <div>
+        MinD  : <input step=".1" value ="3.5" type = 'number' id = 'newMinD'>
+        <button id="updateSpeed" onclick="updateMinD()">Update</button>
+    </div>
+    <div>
+        AddD  : <input step=".1" value ="5" type = 'number' id = 'newAddD'>
+        <button id="updateSpeed" onclick="updateAddD()">Update</button>
+    </div>
+    <div>
+        MinF  : <input step=".1" value ="7" type = 'number' id = 'newMinF'>
+        <button id="updateMinF" onclick="updateMinF()">Update</button>
+    </div>
+        <div>
+        Mod  : <input step=".1" value ="4" type = 'number' id = 'newMod'>
+        <button id="updateMod" onclick="updateMinF()">Update</button>
+    </div>
+    <!--</div>-->
+    <!--    <div>-->
+    <!--    Kp  : <input step=".01" value ="4" type = 'number' id = 'newKp'>-->
+    <!--    <button id="updateKp" onclick="updateKp()">Update</button>-->
+    <!--</div>-->
+    </div>
+        <div>
+        Kd  : <input step=".01" value =".075" type = 'number' id = 'newKd'>
+        <button id="updateKd" onclick="updateKd()">Update</button>
+    </div>
+    </div>
+        <div>
+        Ki  : <input step=".01" value ="0" type = 'number' id = 'newKi'>
+        <button id="updateKi" onclick="updateKi()">Update</button>
+    </div>
+    <div>
+      <p>Control the robot with arrow keys</p>
+      <button id="toggleMan" onclick='toggleManual()'>Manual off</button>
+      <button id="stop" onClick='stop()'>Emergency Stop</button>
+      <button id="toggleAuto" onclick='toggleAuto()'>Auto off</button>
+    </div>
+    <div>
+        <p>Manual stepping</p>
+        <button id=stepF onclick=stepForward()>Step Forward</button>
+        <button id=stepB onclick=stepBackward()>Step Backward</button>
+        <button id=stepCW onclick=stepClockwise()>Step Clockwise</button>
+        <button id=stepCCW onclick=stepCounterwise()>Step Counter-Clockkwise</button>
+    </div>
+    <div>
+        <button id=rotCW onclick=rotateCW()>Rotate 180 CW</button>
+        <button id=rotCCW onclick=rotateCCW()>Rotate 180 CCW</button>
+    </div>
+    <div>
+        Angle (0-180) : <input min="0" max="180" step = "1" type = 'number' id = 'angle'>
+        <button id='updateAngle' onclick='updateArm()'>Update Arm</button>
+    </div>
+    <div>
+      <h3>Sensors</h3>
+      <ul>
+        <p id="voltage" >Battery: 0 v</p>
+        <p id="frontL"   >Front Left  : 0 inches</p>
+        <p id="frontR"   >Front Right : 0 inches</p>
+        <p id="left"    >Left   : 0 inches</p>
+        <p id="right"   >Right  : 0 inches</p>
+        <p id="rear"    >Rear   : 0 inches</p>
+        </br>
+        <p id="leftM"   >Left Speed : 0</p>
+        <p id="rightM"  >Right Speed : 0</p>
+      </ul>
+
+    </div>
+  </body>
+</html>
