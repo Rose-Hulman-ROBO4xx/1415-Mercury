@@ -417,15 +417,7 @@ function auto(){
         
 }
 
-function updateDT(){
-    dT = (10*cycleTime)/runS;
-    runS = 0;
-    // console.log("Current State is: " + state);
-}
-
 function main(){
-    runT ++;
-    runS ++;
     /*
     STATE
         STOP:     no action or stop previous action
@@ -448,9 +440,6 @@ function main(){
         auto();
     }
 }
-var dTloop = setInterval(function(){
-    updateDT();
-},(10*cycleTime));
 
 var mainLoop = setInterval(function(){
     main();
