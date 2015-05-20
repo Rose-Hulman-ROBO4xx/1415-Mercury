@@ -346,13 +346,14 @@ init();
 
 function auto(){
           
-    
+    // Get sensor values
     left = sensors.getLeft();
     right = sensors.getRight();
     
     frontLeft = sensors.getFrontLeft();
     frontRight = sensors.getFrontRight();
     
+    // Adjust for front sensors
     if(frontLeft > maxD){
         frontLeft = maxD;
     }
@@ -360,7 +361,7 @@ function auto(){
         frontRight = maxD;
     }
     
-    
+    // Adjust for sensor limits
     if(left <= minD){
       right +=addD;
     }
@@ -368,14 +369,13 @@ function auto(){
       left +=addD;
     }
     
-    
+    // Keep sensor values bounded so that the PWM values are less than 1
     if(left > maxD){
         left = maxD;
     }
     if(right > maxD){
         right = maxD;
     }
-    
     
     if(frontLeft > minF){
       left += mod;
@@ -385,13 +385,17 @@ function auto(){
       right += mod;
     }
 
+    // calculate error value
     error = left - right;
     
+    // update integral value
     intF += error;
     
+    // update derivative value
     diff = error + last;
     last = error;
     
+    // update Turn value
     turnP = kp * error;
     turnI = ki * intF;
     turnD = kd * diff;
@@ -402,9 +406,11 @@ function auto(){
     
     // console.log("Turn : " + turn);
     
+    // calculate PWM values for each motor
     leftSpeed = avg - turn;
     rightSpeed = avg + turn;
     
+    // keep pwm values less than 1
     if(leftSpeed >=1){
       leftSpeed = .9;
     }
@@ -412,7 +418,7 @@ function auto(){
       rightSpeed = .9;
     }
     
-        
+    // update motors
     motion.skid(leftSpeed ,rightSpeed );
         
 }

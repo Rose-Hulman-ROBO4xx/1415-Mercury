@@ -8,6 +8,8 @@ var connectLED = 'P9_22';
 
 b.pinMode(connectLED,b.OUTPUT);
 
+// Do a dns look up on Google.com
+// If no response, then the internet is down
 function  checkConnection(){
 	dns.lookup('google.com',function(err) {
 	
@@ -23,6 +25,8 @@ function  checkConnection(){
 monitorConnection();
 
 console.log("Connected");
+
+// If the robot loses connection, restart the network manager (wicd)
 function monitorConnection () {
     checkConnection();
     if(!connected){

@@ -23,7 +23,7 @@ b.pinMode(LPwm, b.ANALOG_OUTPUT);
 b.pinMode(RPwm, b.ANALOG_OUTPUT);
 b.pinMode(ArmPwm, b.ANALOG_OUTPUT);
 
-
+// Set motor speed
 function setMotorSpeed(directId, pwmId, direction, speed){
     b.digitalWrite(directId, direction, function(x){
        b.analogWrite(pwmId, speed);
@@ -40,6 +40,7 @@ function RmotorSpeed(speed, direction){
     setMotorSpeed(RRdirect, RPwm, direction, speed);
 }
 
+// Stop motor
 function stopMotor( id){
     b.analogWrite(id, 0);
 }
@@ -84,6 +85,7 @@ exports.skid = function(leftSpeed, rightSpeed){
 
 };
 
+// Set the arm to a specific angle
 exports.armSet = function(angle){
     
     var pwm = angleToDC(angle);
@@ -94,9 +96,9 @@ exports.armOff = function(){
     b.analogWrite(ArmPwm,0,50);
 }
 
+// Determine the duty cycle for a specific angle
 function angleToDC(a){
     var p = 2600 - (a * 11.667);
     var d = ( p / 20000.0);
-    console.log(p + ' ' + d);
     return d;
 }

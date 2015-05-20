@@ -16,12 +16,13 @@ x    isBatteryGood()
 */
 
 
-var frontLIR = "P9_37",
-    frontRIR = "P9_38",
-    leftIR = "P9_35",
-    rightIR = "P9_39",
-    rearIR = "P9_36",
-    batteryVolt = "P9_33";
+// sensor pins
+var frontLIR = "P9_37", // Front Left IR
+    frontRIR = "P9_38", // FFront Right IR
+    leftIR = "P9_35", // Left IR
+    rightIR = "P9_39", // Right IR
+    rearIR = "P9_36", // Rear IR
+    batteryVolt = "P9_33"; // Battery voltage
 
 /*
 functions:
@@ -32,10 +33,12 @@ functions:
     getRearIR()
     getVoltage()
 */
+
+// Read the voltage on a pin
 function read(pinId){
     return b.analogRead(pinId);
 }
-
+// Read value of a pin
 function getFrontLIR(){
     return read(frontLIR);
 }
@@ -55,6 +58,8 @@ function getVoltage(){
     return read(batteryVolt);
 }
 
+
+// Get the value of a pin and calculate what that value means. Inches for IR sensors and battery voltage for the battery pin
 module.exports = {
 getFront: function(){
     var val = getFrontIR();
@@ -80,58 +85,13 @@ getRear: function(){
     var val = getRearIR();
     return calcDistance(val);
 },
-isFrontWall: function(){
-    var val = getFront();
-    if(val <= 5){
-        return true;
-    }
-    else{
-        return false;
-    }
-},
-isRearWall: function(){
-    var val = getRear();
-    if(val <= 10){
-        return true;
-    }
-    else{
-        return false;
-    }
-},
-isLeftWall: function(){
-    var val = getLeft();
-    if(val <= 3){
-        return true;
-    }
-    else{
-        return false;
-    }
-},
-isRightWall: function(){
-    var val = getRight();
-    if(val <= 3){
-        return true;
-    }
-    else{
-        return false;
-    }
-},
-    getVolt: function(){
+getVolt: function () {
     var val = getVoltage();
     return calcVoltage(val);
-},
-    isBatteryGood : function(){
-    var val = getVolt();
-    if(val > 7){
-        return true;
-    }
-    else{
-        return false;
-    }
 }
 };
 
-
+// Calculate the distance read by the IR sensors from the voltage read
 function calcDistance(val){
     var factor = .9222;
     var expon = 1.0/.891;
@@ -140,6 +100,8 @@ function calcDistance(val){
     
     return Math.pow(temp,expon);
 }
+
+// Calculate the voltage of the Battery
 function calcVoltage(val){
 
     var factor = 1.211*8.4;
