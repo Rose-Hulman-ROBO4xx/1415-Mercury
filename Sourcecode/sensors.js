@@ -61,10 +61,6 @@ function getVoltage(){
 
 // Get the value of a pin and calculate what that value means. Inches for IR sensors and battery voltage for the battery pin
 module.exports = {
-getFront: function(){
-    var val = getFrontIR();
-    return calcDistance(val);
-},
 getFrontLeft: function(){
     var val = getFrontLIR();
     return calcDistance(val);
